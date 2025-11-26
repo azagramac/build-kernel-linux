@@ -73,10 +73,10 @@ jobs:
           PATCH_INPUT="${{ inputs.patch }}"
           
           mkdir -p kernel_build
-          
           # Descargar .config
           CONFIG_URL="https://raw.githubusercontent.com/azagramac/build-kernel/refs/heads/master/${CONFIG_INPUT}"
           echo "⬇️ Downloading config from $CONFIG_URL..."
+          make mrproper
           curl -L -o kernel_build/.config "$CONFIG_URL"
 
           # Descargar patch solo si se pasa
@@ -94,6 +94,8 @@ jobs:
         run: |
           cd kernel_build
           echo "🔧 Applying configuration..."
+          scripts/config --enable IKHEADERS
+          scripts/config --enable DEBUG_INFO
           make olddefconfig
 
       - name: 🧩 Apply patch
