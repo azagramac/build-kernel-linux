@@ -1,1 +1,1 @@
-[![Kernel Build Status](https://github.com/azagramac/build-kernel/actions/workflows/build-kernel-from-source.yml/badge.svg)](https://github.com/azagramac/build-kernel/actions/workflows/build-kernel-from-source.yml)
+[![Kernel Build Status](https://github.com/azagramac/build-kernel-linux/actions/workflows/build-kernel.yml/badge.svg)](https://github.com/azagramac/build-kernel-linux/actions/workflows/build-kernel.yml)
