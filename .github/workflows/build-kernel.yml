@@ -1,12 +1,12 @@
-name: 🐧 Build linux kernel
+name: 🐧 Build kernel
 
 on:
   workflow_dispatch:
     inputs:
       config:
-        description: '📄 Kernel config name (ej: config-6.10.7-debian12)'
+        description: '📄 Kernel config name (ej: config-6.18.2-debian13 from configs/)'
         required: true
-        default: 'config-6.10.7-debian12'
+        default: 'config-6.18.2-debian13'
       patch:
         description: '🧩 Optional patch name (from patchs/ in repo)'
         required: false
@@ -20,7 +20,7 @@ on:
         required: false
         default: ''
       url:
-        description: '📦 Kernel tarball URL (.tar.gz or .tar.xz)'
+        description: '📦 Kernel tarball URL from kernel.org (.tar.gz or .tar.xz)'
         required: false
         default: ''
 
@@ -40,7 +40,7 @@ jobs:
       - name: ⚙️ Install build dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -y git build-essential fakeroot bc bison flex libelf-dev libssl-dev \
+          sudo apt install -y git build-essential fakeroot bc bison flex libdw-dev libelf-dev libssl-dev \
             libncurses5-dev libncurses-dev dwarves debhelper rsync python3 ccache curl jq patch
 
       - name: 📥 Download kernel tarball
@@ -61,26 +61,30 @@ jobs:
           echo "kernel_tag=$TAG" >> $GITHUB_ENV
 
       - name: 📥 Clone torvalds/linux repo
-        if: ${{ inputs.url == '' }}
+        if: ${{ inputs.url == '' && inputs.tag != '' }}
         id: clone_repo
         run: |
           git clone --depth 1 --branch ${{ inputs.tag }} https://github.com/torvalds/linux kernel_build
           echo "kernel_tag=${{ inputs.tag }}" >> $GITHUB_ENV
+
+      - name: 🔍 Verify kernel source
+        run: |
+          if [ ! -d kernel_build ]; then
+            echo "❌ No kernel source available! Provide either a valid URL or a tag."
+            exit 1
+          fi
 
       - name: 📄 Download .config and optional patch from GitHub
         run: |
           CONFIG_INPUT="${{ inputs.config }}"
           PATCH_INPUT="${{ inputs.patch }}"
           
-          mkdir -p kernel_build
-          # Descargar .config
-          CONFIG_URL="https://raw.githubusercontent.com/azagramac/build-kernel-linux/refs/heads/master/configs/${CONFIG_INPUT}"
+          CONFIG_URL="https://raw.githubusercontent.com/azagramac/linux-kernel/refs/heads/master/configs/${CONFIG_INPUT}"
           echo "⬇️ Downloading config from $CONFIG_URL..."
           curl -L -o kernel_build/.config "$CONFIG_URL"
 
-          # Descargar patch solo si se pasa
           if [ -n "$PATCH_INPUT" ]; then
-            PATCH_URL="https://raw.githubusercontent.com/azagramac/build-kernel-linux/refs/heads/master/patchs/${PATCH_INPUT}"
+            PATCH_URL="https://raw.githubusercontent.com/azagramac/linux-kernel/refs/heads/master/patchs/${PATCH_INPUT}"
             echo "⬇️ Downloading patch from $PATCH_URL..."
             if curl -L -f -o kernel_build/patch_file.patch "$PATCH_URL"; then
               echo "✅ Patch downloaded successfully"
@@ -98,6 +102,7 @@ jobs:
           make olddefconfig
 
       - name: 🧩 Apply patch
+        if: ${{ inputs.patch != '' }}
         run: |
           cd kernel_build
           if [ -f patch_file.patch ]; then
@@ -130,13 +135,92 @@ jobs:
           find .. -name "*.changes" -exec cp {} artifacts/ \;
           find .. -name "*.buildinfo" -exec cp {} artifacts/ \;
 
-      - name: 📋 Read .changes for release body
+      - name: 📋 Generate formatted release body from .changes
         id: release_body
+        shell: bash
         run: |
-          CHANGES_FILE=$(find artifacts -name "*.changes" | head -n1)
-          BODY=$(cat "$CHANGES_FILE")
+          CHANGES_FILE=$(find artifacts -maxdepth 1 -name "*.changes" | head -n1)
+      
+          if [ -z "$CHANGES_FILE" ]; then
+            echo "❌ No .changes file found in artifacts"
+            exit 1
+          fi
+      
+          get_field() {
+            awk -F': ' -v key="$1" '$1==key {print $2}' "$CHANGES_FILE"
+          }
+      
+          FORMAT=$(get_field "Format")
+          DATE=$(get_field "Date")
+          SOURCE=$(get_field "Source")
+          ARCH=$(get_field "Architecture")
+          VERSION=$(get_field "Version")
+          DIST=$(get_field "Distribution")
+          URGENCY=$(get_field "Urgency")
+          MAINTAINER=$(get_field "Maintainer")
+          CHANGED_BY=$(get_field "Changed-By")
+      
+          BINARIES=$(get_field "Binary" | sed 's/ /\` \`/g; s/^/\`/; s/$/\`/')
+      
+          DESCRIPTION=$(awk '
+            /^Description:/ {flag=1; next}
+            /^Changes:/ {flag=0}
+            flag && NF {print " - "$0}
+          ' "$CHANGES_FILE")
+      
+          SHA1=$(awk '
+            /^Checksums-Sha1:/ {flag=1; next}
+            /^Checksums-Sha256:/ {flag=0}
+            flag && NF {print}
+          ' "$CHANGES_FILE")
+      
+          SHA256=$(awk '
+            /^Checksums-Sha256:/ {flag=1; next}
+            /^Files:/ {flag=0}
+            flag && NF {print}
+          ' "$CHANGES_FILE")
+      
+          FILES=$(awk '
+            /^Files:/ {flag=1; next}
+            flag && NF {print}
+          ' "$CHANGES_FILE")
+      
+          cat <<EOF > release.md
+          **Format:** $FORMAT  
+          **Date:** $DATE  
+          **Source:** $SOURCE  
+          **Binary:** $BINARIES  
+          **Architecture:** $ARCH  
+          **Version:** $VERSION  
+          **Distribution:** $DIST  
+          **Urgency:** $URGENCY  
+          **Maintainer:** $MAINTAINER  
+          **Changed-By:** $CHANGED_BY  
+          
+          ## 📝 Description:
+          $DESCRIPTION
+          
+          ## 🔄 ChangeLog:
+           * Custom built Linux kernel.
+          
+          ## ✅ Checksums-Sha1:
+          \`\`\`bash
+          $SHA1
+          \`\`\`
+          
+          ## ✅ Checksums-Sha256:
+          \`\`\`bash
+          $SHA256
+          \`\`\`
+          
+          ## 📦 Files:
+          \`\`\`bash
+          $FILES
+          \`\`\`
+          EOF
+      
           echo "body<<EOF" >> $GITHUB_OUTPUT
-          echo "$BODY" >> $GITHUB_OUTPUT
+          cat release.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 🚀 Upload Linux Kernel
