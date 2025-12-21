@@ -234,3 +234,27 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📤 Send Telegram notification
+        if: always()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHATID: ${{ secrets.TELEGRAM_CHATID }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          BUILD_STATUS: ${{ job.status }}
+          KERNEL_VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          STATUS_EMOJI="✅"
+          if [ "$BUILD_STATUS" != "success" ]; then
+            STATUS_EMOJI="❌"
+          fi
+
+          MESSAGE=$(printf "<b> 🐧 Linux Kernel Build %s %s</b>\n\n \
+          🏷️ <b>Versión:</b> %s\n \
+          🔗 <a href=\"https://github.com/%s/%s/actions/runs/%s\">Ver detalles en GitHub</a>" \
+          "$STATUS_EMOJI" "${BUILD_STATUS^}" "$KERNEL_VERSION" "${{ github.repository_owner }}" "${{ github.repository }}" "$GITHUB_RUN_ID")
+
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHATID}" \
+            --data-urlencode "parse_mode=HTML" \
+            --data-urlencode "text=$MESSAGE" >/dev/null 2>&1
