@@ -12,7 +12,7 @@ Last build
 Hardware
 -----------
 
-🐧 Kernel and Toolchain
+### 🐧 Kernel and Toolchain
 | Element             | Value               |
 | ------------------- | ------------------- |
 | Kernel              | Linux 6.18.2-ryzen9 |
@@ -20,12 +20,13 @@ Hardware
 | Base Distribution   | Debian 13           |
 | Compiler            | GCC 14.2.0          |
 | Target Architecture | Zen 3               |
+| Grub                | `GRUB_CMDLINE_LINUX_DEFAULT="amd_pstate=active amdgpu.ppfeaturemask=0xffffffff quiet"` |
 
-🔧 CPU
+### 🧠 CPU
 | Component         | Details                                          |
 | ----------------- | ------------------------------------------------ |
 | Architecture      | x86_64                                           |
-| CPU               | AMD Ryzen 9 5950X (Vermeer)                      |
+| CPU               | [AMD Ryzen 9 5950X](https://www.amd.com/en/products/processors/desktops/ryzen/5000-series/amd-ryzen-9-5950x.html) (Vermeer)                      |
 | Cores / Threads   | 16 cores / 32 threads                            |
 | Socket            | AM4                                              |
 | Maximum Frequency | ~4.9 GHz (boost)                                 |
@@ -37,16 +38,7 @@ Hardware
 | L3 Cache          | 64 MiB (2 CCDs)                                  |
 | Instruction Sets  | AVX2, FMA, AES-NI, SHA-NI, VAES, BMI1/2          |
 
-🎮 GPU
-| Component     | Details               |
-| ------------- | --------------------- |
-| GPU           | AMD Radeon RX 6950 XT |
-| Architecture  | RDNA 2 (Navi 21)      |
-| PCI ID        | 1002:73a5             |
-| Kernel Driver | `amdgpu`              |
-| DRM/KMS       | Enabled               |
-
-🧠 Memory RAM
+### 💾 Memory RAM
 | Parameter      | Value                     |
 | -------------- | ------------------------- |
 | Total Capacity | 128 GB                     |
@@ -55,12 +47,29 @@ Hardware
 | Speed          | 3600 MT/s                 |
 | Channels       | Dual Channel              |
 | ECC            | No                        |
-| Model          | G.Skill F4-3600C18-32GTZN |
+| Model          | [G.Skill F4-3600C18-32GTZN](https://www.gskill.com/product/165/326/1562840525/F4-3600C18D-32GTZN) |
 
-🧩 Motherboard
+### 🎮 GPU
+| Component     | Details               |
+| ------------- | --------------------- |
+| GPU           | [AMD Radeon RX 6950 XT](https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6950-xt.html) |
+| Architecture  | RDNA 2 (Navi 21)      |
+| PCI ID        | `1002:73a5`             |
+| Kernel Driver | `amdgpu`              |
+| DRM/KMS       | Enabled               |
+| BAR           | Enabled (16 GiB)      |
+
+### 🎮 GPU APIs
+| API    | Version | Device / Driver                      |
+| ------ | ------- | ------------------------------------ |
+| Vulkan | 1.4.318 | RADV NAVI21  |
+| OpenCL | 3.0     | OpenCL C 1.2 |
+| OpenGL | 4.6     | Mesa (assumed via `amdgpu` / RADV)   |
+
+### 🧩 Motherboard
 | Component    | Details                              |
 | ------------ | ------------------------------------ |
-| Motherboard  | Gigabyte X570 AORUS ELITE (rev. 1.0) |
+| Motherboard  | [Gigabyte X570 AORUS ELITE](https://www.gigabyte.com/Motherboard/X570-AORUS-ELITE-rev-10/sp) (rev. 1.0) |
 | Chipset      | AMD X570                             |
 | Manufacturer | Gigabyte Technology Co., Ltd.        |
 | BIOS         | AMI (American Megatrends)            |
@@ -69,7 +78,7 @@ Hardware
 | Boot Mode    | UEFI                                 |
 | SMBIOS       | 3.3.0                                |
 
-🔐 Trusted Platform Module (TPM)
+### 🔐 Trusted Platform Module (TPM)
 | Parameter         | Value                         |
 | ----------------- | ----------------------------- |
 | Type              | fTPM (Firmware TPM)           |
@@ -90,27 +99,29 @@ Hardware
 | Max Response Size | 4096 bytes                    |
 | Hardware RNG      | Disabled (CRB design)         |
 
-🔊 Audio
+### 🔊 Audio
 | Component  | Details                  |
 | ---------- | ------------------------ |
-| Sound Card | Creative Sound Blaster Z |
+| Sound Card | [Creative Sound Blaster Z](https://es.creative.com/p/sound-blaster/sound-blaster-z-se) |
 | Chip       | CA0132 Sound Core3D      |
-| PCI ID     | 1102:0012                |
+| PCI ID     | `1102:0012`                |
 | Driver     | ALSA (`snd_ca0132`)      |
+| Hi-res Audio | [Enabled](https://blog.azagra.dev/linux/high-res-audio-192-khz-en-debian-13-sound-blaster-z) `32 bits / 192kHz` |
+| Speakers     | [Edifier M60](https://www.edifier.com/global/p/computer-speakers/m60)       |
 
-🌐 Network — Ethernet
+### 🌐 Network — Ethernet
 | Component  | Details            |
 | ---------- | ------------------ |
-| Controller | Intel I211 Gigabit |
-| PCI ID     | 8086:1539          |
+| Controller | [Intel I211 Gigabit](https://www.intel.la/content/www/xl/es/content-details/333015/intel-ethernet-controller-i211-specification-update.html) |
+| PCI ID     | `8086:1539`          |
 | Driver     | `igb`              |
 
-📡 Wi-Fi / Bluetooth
+### 📡 Wi-Fi / Bluetooth
 | Component | Details             |
 | --------- | ------------------- |
-| Wi-Fi     | Intel AX210         |
+| Wi-Fi     | [Intel AX210](https://www.intel.com/content/www/us/en/products/sku/204836/intel-wifi-6e-ax210-gig/specifications.html)         |
 | Standard  | Wi-Fi 6E (802.11ax) |
-| PCI ID    | 8086:2725           |
+| PCI ID    | `8086:2725`           |
 | Driver    | `iwlwifi`           |
 | Bluetooth | Intel AX210         |
 | USB ID    | 8087:0032           |
