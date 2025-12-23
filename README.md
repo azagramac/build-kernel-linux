@@ -118,14 +118,15 @@ Hardware
 | Driver     | `igb`              |
 
 ### 📡 Wi-Fi / Bluetooth
-| Component | Details             |
-| --------- | ------------------- |
-| Wi-Fi     | [Intel AX210](https://www.intel.com/content/www/us/en/products/sku/204836/intel-wifi-6e-ax210-gig/specifications.html)         |
-| Standard  | Wi-Fi 6E (802.11ax) |
-| PCI ID    | `8086:2725`           |
-| Driver    | `iwlwifi`           |
-| Bluetooth | Intel AX210         |
-| USB ID    | 8087:0032           |
+| Component | Details                                     |
+| --------- | ------------------------------------------- |
+| Wi-Fi     | [Intel AX210](https://www.intel.com/content/www/us/en/products/sku/204836/intel-wifi-6e-ax210-gig/specifications.html)                                 |
+| Standard  | Wi-Fi 6E (802.11ax)                         |
+| PCI ID    | `8086:2725`                                 |
+| Driver    | `iwlwifi`                                   |
+| Bluetooth | Intel AX210                                 |
+| USB ID    | `8087:0032`                                 |
+| Driver    | `btusb` + `btintel` (kernel modules loaded) |
 
 ---
 
