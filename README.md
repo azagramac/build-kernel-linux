@@ -25,11 +25,13 @@ Hardware
 ### 🧠 CPU
 | Component         | Details                                          |
 | ----------------- | ------------------------------------------------ |
-| Architecture      | x86_64                                           |
-| CPU               | [AMD Ryzen 9 5950X](https://www.amd.com/en/products/processors/desktops/ryzen/5000-series/amd-ryzen-9-5950x.html) (Vermeer)                      |
+| Architecture      | x86_64 `amd64`                                   |
+| Core Architecture | Zen 3                                            |
+| CPU               | [AMD Ryzen 9 5950X](https://www.amd.com/en/products/processors/desktops/ryzen/5000-series/amd-ryzen-9-5950x.html) (Vermeer) |
 | Cores / Threads   | 16 cores / 32 threads                            |
 | Socket            | AM4                                              |
 | Maximum Frequency | ~4.9 GHz (boost)                                 |
+| TDP               | 105W                                             |
 | SMT               | Enabled                                          |
 | NUMA              | 1 node                                           |
 | Virtualization    | AMD-V enabled                                    |
