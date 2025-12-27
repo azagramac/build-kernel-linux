@@ -251,7 +251,7 @@ jobs:
 
           MESSAGE=$(printf "<b> 🐧 Linux Kernel Build %s %s</b>\n\n \
           🏷️ <b>Versión:</b> %s\n \
-          🔗 <a href=\"https://github.com/%s/%s/actions/runs/%s\">Ver detalles en GitHub</a>" \
+          🔗 <a href=\"https://github.com/%s/actions/runs/%s\">Ver detalles en GitHub</a>" \
           "$STATUS_EMOJI" "${BUILD_STATUS^}" "$KERNEL_VERSION" "${{ github.repository_owner }}" "${{ github.repository }}" "$GITHUB_RUN_ID")
 
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
